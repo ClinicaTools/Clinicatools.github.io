@@ -7,4 +7,4 @@ The sole purpose of reason github pages is it is free and easy to use on both se
 hope this saves u time while providing value.
 
 i will soon update this page with cool graphics
-heres [bmi calculator](bmi.html) and [body surface area calculator](BSAcalc) though
+heres [bmi calculator](bmi.html) and [body surface area calculator](bsa by me.html) though
