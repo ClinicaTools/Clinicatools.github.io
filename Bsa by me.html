@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLINICALENS</title>
+    <style>
+        /* Reset margin and padding for all elements */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Style for the top blue bar */
+        .top-bar {
+            background-color: #0A2540; /* Dark blue color */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-family: 'Georgia', serif; /* Adjust font if needed */
+        }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .top-bar p {
+            margin: 5px 0 0;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        /* Content area style */
+        .content {
+            background-color: white;
+            padding: 40px 20px;
+            min-height: 70vh; /* Ensures the content section takes up screen height */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) { /* Tablets and phones */
+            .top-bar h1 {
+                font-size: 1.5em;
+            }
+
+            .top-bar p {
+                font-size: 1em;
+            }
+
+            .content {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top bar section -->
+    <div class="top-bar">
+        <h1>CLINICATOOLS</h1>
+        <p></p>
+    </div>
+
+    <!-- Content area for calculators and media -->
+    <!-- BMI Calculator -->
+<div class="bmi-calculator">
+    <h2>Body Surface Area Calculator</h2>
+    <label for="height">Height (cm):</label>
+    <input type="number" id="height" placeholder="Enter height in cm">
+    
+    <label for="weight">Weight (kg):</label>
+    <input type="number" id="weight" placeholder="Enter weight in kg">
+    
+    <button onclick="calculateBSA()">Calculate BSA</button>
+    
+    <p id="result"></p>
+</div>
+
+<script>
+    function calculateBSA() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+
+            if (!isNaN(height) && !isNaN(weight)) {
+                // Mosteller formula for BSA calculation
+                const bsa = Math.sqrt((height * weight) / 3600).toFixed(2);
+                document.getElementById('result').innerHTML = `Body Surface Area (BSA): ${bsa} m²`;
+            } else {
+                document.getElementById('result').innerHTML = "Please enter valid height and weight.";
+            }
+        }
+</script>
+
+<style>
+    .bmi-calculator {
+        max-width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f8f8;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .bmi-calculator h2 {
+        margin-bottom: 20px;
+        color: #0A2540;
+    }
+
+    .bmi-calculator label {
+        display: block;
+        margin: 10px 0 5px;
+        font-size: 14px;
+    }
+
+    .bmi-calculator input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .bmi-calculator button {
+        background-color: #0A2540;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .bmi-calculator button:hover {
+        background-color: #08324f;
+    }
+
+    #result {
+        margin-top: 15px;
+        font-size: 16px;
+        color: #333;
+    }
+</style>
+
+
+</body>
+</html>
