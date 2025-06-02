@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hysperix - Ayurvedic Drug Information Database</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: white;
+            min-height: 70vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        top-bar {
+            text-align: center;
+            padding: 40px 20px;
+            background-color:  #0A2540
+            color: #0A2540;
+			font-family: 'Georgia', serif;
+            
+        }
+
+        top-bar h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .instructions {
+            background: #f8f8f8;
+            padding: 25px;
+			
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid #0A2540;
+        }
+
+        .instructions h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .instructions ol {
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .search-section {
+            background: #f8f8f8;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+			border-left: 5px solid #0A2540;
+        }
+
+        .search-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-btn {
+            background-color: #0A2540;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            grid-column: span 2;
+            max-width: 200px;
+            margin: 10px auto 0;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            background: #f8f8f8;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-height: 300px;
+			border-left: 5px solid #0A2540;
+        }
+
+        .results-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+
+        .results-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .drug-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s;
+        }
+
+        .drug-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .drug-name {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .qualities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .quality-item {
+            background: #eaf6ff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .quality-result {
+            padding: 15px;
+            background: #eaf6ff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .quality-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2rem;
+            color: #3498db;
+        }
+
+        .loading::after {
+            content: " ";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 50px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-btn {
+                grid-column: 1;
+            }
+            
+            header {
+                padding: 25px 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <top-bar>
+            <h1>Hysperix</h1>
+            <p class="subtitle">Search our comprehensive database of drugs and their ayurvedic properties</p>
+        </top-bar>
+
+        <section class="instructions">
+            <h2>How to Use This Search Tool</h2>
+            <ol>
+                <li>Enter a <strong>drug name</strong> to see all its associated qualities</li>
+                <li>Enter one or more <strong>qualities</strong> to find drugs that have those properties</li>
+                
+                <li>All fields are optional - leave fields blank to ignore them</li>
+                <li>Click "Search Database" to retrieve results</li>
+            </ol>
+        </section>
+
+        <section class="search-section">
+            <h2>Search Parameters</h2>
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="drug-name">Name of Drug:</label>
+                    <input type="text" id="drug-name" placeholder="e.g., Aspirin">
+                </div>
+                <div class="form-group">
+                    <label for="quality-1">Quality 1:</label>
+                    <input type="text" id="quality-1" placeholder="e.g., Anti-inflammatory">
+                </div>
+                <div class="form-group">
+                    <label for="quality-2">Quality 2:</label>
+                    <input type="text" id="quality-2" placeholder="e.g., Analgesic">
+                </div>
+                <div class="form-group">
+                    <label for="quality-3">Quality 3:</label>
+                    <input type="text" id="quality-3" placeholder="e.g., Blood thinner">
+                </div>
+                <button class="search-btn" id="search-btn">Search Database</button>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <h2>Search Results</h2>
+            <div class="results-container" id="results-container">
+                <div class="no-results">Enter search criteria and click "Search Database" to retrieve results</div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Disclaimer: This database is still in its early stages of development and any data available on this page should not be perceived as medically correct unless consulted with your physician. I am not responsible for any harm caused by this database. Use at your own risk. </p>
+            <br></br>			
+			<p>Ayurvedic Drug Database | Data powered by Supabase</p>
+            <p>Side project by Shreyash</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Supabase client (REPLACE WITH YOUR SUPABASE CREDENTIALS)
+        const SUPABASE_URL = 'https://your-project.supabase.co';
+        const SUPABASE_KEY = 'your-supabase-key';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // DOM Elements
+        const searchBtn = document.getElementById('search-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const drugNameInput = document.getElementById('drug-name');
+        const quality1Input = document.getElementById('quality-1');
+        const quality2Input = document.getElementById('quality-2');
+        const quality3Input = document.getElementById('quality-3');
+        
+        // Search function
+        async function searchDrugs() {
+            // Get input values
+            const drugName = drugNameInput.value.trim();
+            const qualities = [
+                quality1Input.value.trim(),
+                quality2Input.value.trim(),
+                quality3Input.value.trim()
+            ].filter(q => q !== '');
+            
+            // Clear previous results and show loading
+            resultsContainer.innerHTML = '<div class="loading">Searching database...</div>';
+            
+            try {
+                let results = [];
+                
+                // Scenario 1: Search by drug name only
+                if (drugName && qualities.length === 0) {
+                    results = await searchByName(drugName);
+                    displayDrugResults(results);
+                } 
+                // Scenario 2: Search by qualities only
+                else if (!drugName && qualities.length > 0) {
+                    results = await searchByQualities(qualities);
+                    displayQualityResults(results, qualities);
+                } 
+                // Scenario 3: Search by both name and qualities
+                else if (drugName && qualities.length > 0) {
+                    const nameResults = await searchByName(drugName);
+                    const qualityResults = await searchByQualities(qualities);
+                    displayCombinedResults(nameResults, qualityResults);
+                } 
+                // Scenario 4: No search criteria
+                else {
+                    resultsContainer.innerHTML = '<div class="no-results">Please enter at least one search criteria</div>';
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsContainer.innerHTML = `<div class="no-results">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Search by drug name
+        async function searchByName(name) {
+            const { data, error } = await supabase
+                .from('drugs')
+                .select('*')
+                .ilike('name', `%${name}%`);
+            
+            if (error) throw error;
+            return data;
+        }
+        
+        // Search by qualities
+        async function searchByQualities(qualities) {
+            // Create OR conditions for each quality in each column
+            let orConditions = [];
+            
+            qualities.forEach(q => {
+                orConditions.push(`quality1.ilike.%${q}%`);
+                orConditions.push(`quality2.ilike.%${q}%`);
+                orConditions.push(`quality3.ilike.%${q}%`);
+            });
+            
+            const { data, error } = await supabase
+                .from('drugs')
+                .select('name, quality1, quality2, quality3')
+                .or(orConditions.join(','));
+            
+            if (error) throw error;
+            return data;
+        }
+        
+        // Display results when searching by name
+        function displayDrugResults(drugs) {
+            if (!drugs || drugs.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No drugs found matching your search criteria</div>';
+                return;
+            }
+            
+            resultsContainer.innerHTML = '';
+            
+            drugs.forEach(drug => {
+                const drugCard = document.createElement('div');
+                drugCard.className = 'drug-card';
+                
+                const qualities = [
+                    drug.quality1,
+                    drug.quality2,
+                    drug.quality3
+                ].filter(q => q);
+                
+                drugCard.innerHTML = `
+                    <h3 class="drug-name">${drug.name}</h3>
+                    <p>Properties:</p>
+                    <div class="qualities">
+                        ${qualities.map(q => `<div class="quality-item">${q}</div>`).join('')}
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(drugCard);
+            });
+        }
+        
+        // Display results when searching by qualities
+        function displayQualityResults(drugs, searchQualities) {
+            if (!drugs || drugs.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No drugs found with the specified qualities</div>';
+                return;
+            }
+            
+            // Remove duplicates
+            const uniqueDrugs = [...new Set(drugs.map(drug => drug.name))];
+            
+            resultsContainer.innerHTML = `
+                <div class="quality-title">
+                    Drugs with the following properties: ${searchQualities.join(', ')}
+                </div>
+            `;
+            
+            uniqueDrugs.forEach(drugName => {
+                const drugElement = document.createElement('div');
+                drugElement.className = 'quality-result';
+                drugElement.textContent = drugName;
+                resultsContainer.appendChild(drugElement);
+            });
+        }
+        
+        // Display combined results (both name and qualities)
+        function displayCombinedResults(nameResults, qualityResults) {
+            resultsContainer.innerHTML = '';
+            
+            if (nameResults.length > 0) {
+                const nameHeader = document.createElement('h3');
+                nameHeader.className = 'quality-title';
+                nameHeader.textContent = `Drugs matching name: ${drugNameInput.value}`;
+                resultsContainer.appendChild(nameHeader);
+                
+                nameResults.forEach(drug => {
+                    const drugCard = document.createElement('div');
+                    drugCard.className = 'drug-card';
+                    
+                    const qualities = [
+                        drug.quality1,
+                        drug.quality2,
+                        drug.quality3
+                    ].filter(q => q);
+                    
+                    drugCard.innerHTML = `
+                        <h3 class="drug-name">${drug.name}</h3>
+                        <p>Properties:</p>
+                        <div class="qualities">
+                            ${qualities.map(q => `<div class="quality-item">${q}</div>`).join('')}
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(drugCard);
+                });
+            }
+            
+            if (qualityResults.length > 0) {
+                const qualityHeader = document.createElement('h3');
+                qualityHeader.className = 'quality-title';
+                qualityHeader.textContent = `Drugs with properties: ${[
+                    quality1Input.value.trim(),
+                    quality2Input.value.trim(),
+                    quality3Input.value.trim()
+                ].filter(q => q).join(', ')}`;
+                resultsContainer.appendChild(qualityHeader);
+                
+                // Remove duplicates
+                const uniqueDrugs = [...new Set(qualityResults.map(drug => drug.name))];
+                
+                uniqueDrugs.forEach(drugName => {
+                    const drugElement = document.createElement('div');
+                    drugElement.className = 'quality-result';
+                    drugElement.textContent = drugName;
+                    resultsContainer.appendChild(drugElement);
+                });
+            }
+            
+            if (nameResults.length === 0 && qualityResults.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No matching drugs found</div>';
+            }
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', searchDrugs);
+        
+        // Add keyboard support
+        [drugNameInput, quality1Input, quality2Input, quality3Input].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchDrugs();
+                }
+            });
+        });
+        
+        // Sample data display for demonstration (without actual Supabase connection)
+        document.addEventListener('DOMContentLoaded', () => {
+            // For demo purposes only - remove this when connecting to actual Supabase
+            resultsContainer.innerHTML = `
+                <div class="drug-card">
+                    <h3 class="drug-name">Aspirin</h3>
+                    <p>Properties:</p>
+                    <div class="qualities">
+                        <div class="quality-item">Analgesic</div>
+                        <div class="quality-item">Anti-inflammatory</div>
+                        <div class="quality-item">Antipyretic</div>
+                    </div>
+                </div>
+                <div class="drug-card">
+                    <h3 class="drug-name">Ibuprofen</h3>
+                    <p>Properties:</p>
+                    <div class="qualities">
+                        <div class="quality-item">Analgesic</div>
+                        <div class="quality-item">Anti-inflammatory</div>
+                        <div class="quality-item">NSAID</div>
+                    </div>
+                </div>
+                <div class="quality-title">Drugs with properties: Analgesic</div>
+                <div class="quality-result">Aspirin</div>
+                <div class="quality-result">Ibuprofen</div>
+                <div class="quality-result">Acetaminophen</div>
+            `;
+        });
+    </script>
+</body>
+</html>
