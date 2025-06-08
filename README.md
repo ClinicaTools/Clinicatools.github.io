@@ -9,6 +9,6 @@ hope this saves u time while providing value.
 i will soon update this page with cool graphics
 heres [bmi calculator](bmi.html) and [body surface area calculator](Bsabyme.html) though.
 
-currently working on [Ayurvedic Drug Database](Search.html) (experimental)
+currently working on [Ayurvedic Drug Database](Search3.html) (experimental)
 
 shreyash
